@@ -1,6 +1,7 @@
 /**
  * modal.js — Dialog and toast notification system
  */
+export const esc = str => String(str).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]));
 
 // ── Modal ────────────────────────────────────────────────────────────────────
 const overlay = document.getElementById('modal-overlay');

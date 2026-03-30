@@ -3,7 +3,7 @@
  * Extra features: drag-drop PDF anywhere to open, keyboard shortcuts display
  */
 import { pdfEngine } from '../pdf-engine.js';
-import { toast } from '../components/modal.js';
+import { toast, esc } from '../components/modal.js';
 
 const RECENT_KEY = 'pdfeditor_recent_files';
 
@@ -118,7 +118,7 @@ export class HomeView {
             const date = new Date(f.ts).toLocaleDateString();
             card.innerHTML = `
         <div class="recent-card-badge">PDF</div>
-        <div class="recent-card-name" title="${f.name}">${f.name}</div>
+        <div class="recent-card-name" title="${esc(f.name)}">${esc(f.name)}</div>
         <div class="recent-card-meta">${f.pages} pages · ${f.sizeStr} · ${date}</div>
       `;
             card.addEventListener('click', () => toast(`Re-open "${f.name}" by using File → Open`, 'info'));

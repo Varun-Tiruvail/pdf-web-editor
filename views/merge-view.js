@@ -3,7 +3,7 @@
  * Ported from OLDPDFEditor merge_simple + merge_with_headers
  * Uses pdf-lib client-side for actual merging.
  */
-import { toast, showAlert } from '../components/modal.js';
+import { toast, showAlert, esc } from '../components/modal.js';
 
 export class MergeView {
     constructor(container, app) {
@@ -188,7 +188,7 @@ export class MergeView {
             const item = document.createElement('div');
             item.className = 'merge-file-item';
             item.innerHTML = `
-                <span class="merge-file-name">${pdf.name}</span>
+                <span class="merge-file-name">${esc(pdf.name)}</span>
                 <span class="merge-file-pages">${pdf.pageCount} pg</span>
                 <button class="btn sm merge-file-remove" data-idx="${i}">✕</button>
             `;
@@ -217,7 +217,7 @@ export class MergeView {
                 const card = document.createElement('div');
                 card.className = 'merge-thumb-card';
                 card.dataset.orderIdx = this._simplePageOrder.length - 1;
-                card.innerHTML = `<div class="merge-thumb-label">${pdf.name}<br>P${pg + 1}</div>`;
+                card.innerHTML = `<div class="merge-thumb-label">${esc(pdf.name)}<br>P${pg + 1}</div>`;
                 card.addEventListener('click', () => {
                     grid.querySelectorAll('.merge-thumb-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
@@ -261,7 +261,7 @@ export class MergeView {
             const card = document.createElement('div');
             card.className = 'merge-thumb-card' + (i === this._selectedSimpleIdx ? ' selected' : '');
             card.dataset.orderIdx = i;
-            card.innerHTML = `<div class="merge-thumb-label">${pdf.name}<br>P${entry.pageIdx + 1}</div>`;
+            card.innerHTML = `<div class="merge-thumb-label">${esc(pdf.name)}<br>P${entry.pageIdx + 1}</div>`;
             card.addEventListener('click', () => {
                 grid.querySelectorAll('.merge-thumb-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');

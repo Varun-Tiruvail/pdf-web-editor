@@ -1,0 +1,72 @@
+# Project WebEditor: Standard Operating Procedure (SOP) & Deployment Guide
+
+## 1. Standard Operating Procedure (SOP)
+
+### Overview
+**WebEditor** (PDF Editor Pro) is a browser-based, client-side PDF manipulation and annotation tool built with Vanilla JavaScript, HTML5, and CSS3. It leverages `pdf.js` for rendering and relies on modern web APIs for file handling.
+
+### Development Workflow
+1. **Local Setup:** 
+   - No build tools (Webpack/Vite) or `npm install` are strictly required since it is a Vanilla JS project.
+   - Serve the project directory locally to avoid CORS issues when loading modules or assets. You can use VS Code Live Server, or run a simple Python server: 
+     ```bash
+     python -m http.server 8000
+     ```
+   - Access the application at `http://localhost:8000`.
+
+2. **Architecture:**
+   - **`index.html`**: The main entry point containing the application's structure and UI skeleton.
+   - **`index.css`**: The main stylesheet governing the global layout, themes, UI components, and responsive design.
+   - **`app.js`**: The main application controller that initializes views, binds global events, and manages the sidebar/navigation states.
+   - **`pdf-engine.js`**: The core wrapper around `pdf.js`. It handles loading the PDF document, managing the worker, extracting metadata, and rendering pages to the canvas canvas.
+   - **`/components/`**: Reusable UI logic snippets (like sidebar, modals, toasts).
+   - **`/views/`**: Contains class-based view controllers (e.g., `EditorView`, `AnnotateView`, `MergeView`) that handle the logic for specific tabs in the application.
+
+3. **Adding New Features:**
+   - **UI Elements:** Add the HTML skeleton in `index.html` inside the appropriate view container.
+   - **Styling:** Update `index.css`. Follow existing naming conventions and use standard flex/grid layouts.
+   - **Logic:** Create or modify the corresponding view class in the `/views/` folder and ensure it is registered in `app.js`.
+
+---
+
+## 2. Hosting on GitHub Pages (Frontend)
+
+### How much can be hosted on GitHub Pages?
+**100% of the current application can be hosted on GitHub Pages.**
+
+Because WebEditor is entirely a static client-side application (HTML, CSS, JS) that relies on CDN-hosted libraries (like `pdf.js`), it requires **no backend server** to run. All PDF processing and rendering currently happens directly in the user's browser workspace.
+
+### Steps to Deploy to GitHub Pages:
+1. **Commit and Push:** Ensure all your code (`index.html`, `app.js`, `index.css`, `/views`, `/components`) is committed and pushed to your GitHub repository.
+2. **Enable GitHub Pages:**
+   - Go to your repository **Settings** on GitHub.
+   - Navigate to the **Pages** section on the left sidebar.
+   - Under **Build and deployment**, select **Deploy from a branch**.
+   - Select your main branch (e.g., `main` or `master`) and the `/(root)` folder.
+   - Click **Save**.
+3. **Access the Site:** Within a few minutes, your PDF Editor will be live at `https://[your-username].github.io/[repository-name]/`.
+
+---
+
+## 3. Future Backend Setup
+
+While the app currently runs entirely in the browser, there are hints in the source code that some advanced features (like creating complex blank PDFs from scratch) might eventually require a backend or heavy libraries like `jsPDF`. If you choose to add backend processing for tasks that are too heavy for the client browser (e.g., massive file merging, highly accurate server-side OCR, redacting sensitive content securely, or permanent storage), here is how you would set it up:
+
+### Proposed Backend Architecture
+If a backend becomes necessary, a lightweight microservice architecture is recommended.
+
+1. **Tech Stack:**
+   - **Node.js with Express** (Recommended due to existing JS knowledge) OR **Python with FastAPI** (Great for heavy PDF/AI/OCR processing using libraries like `PyMuPDF`).
+2. **Key Endpoints:**
+   - `POST /api/pdf/merge` - Accepts multiple PDF files and returns a single merged PDF.
+   - `POST /api/pdf/ocr` - Accepts a PDF or image, runs heavy OCR engines (like Tesseract), and returns text or an annotated PDF.
+   - `POST /api/pdf/create` - Generates a new PDF based on user specifications and templates.
+3. **Infrastructure / Hosting:**
+   - **Frontend:** Continues to live on GitHub Pages, Vercel, or Netlify.
+   - **Backend:** Hosted on a service like **Render**, **Railway**, or **Heroku**. 
+   - **Storage (Optional):** If user accounts and file saving are introduced, an AWS S3 bucket (for files) and a PostgreSQL/MongoDB database (for user metadata) would be required.
+
+### Transition Strategy
+To implement backend features without breaking the GitHub Pages frontend:
+1. Update your Vanilla JS to include `fetch()` calls predicting the backend route (e.g., `fetch('https://your-backend-url.onrender.com/api/merge')`).
+2. Ensure you configure **CORS** on your backend to allow requests originating from your `github.io` domain.

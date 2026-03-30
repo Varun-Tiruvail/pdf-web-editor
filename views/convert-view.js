@@ -9,7 +9,7 @@
  *   ✅ Extract full text
  */
 import { pdfEngine } from '../pdf-engine.js';
-import { toast, showAlert } from '../components/modal.js';
+import { toast, showAlert, esc } from '../components/modal.js';
 
 // Helper: get PDFLib from global or throw
 const getPDFLib = () => {
@@ -358,7 +358,7 @@ export class ConvertView {
                 this._imgFiles.push(f);
                 const row = document.createElement('div');
                 row.className = 'list-item';
-                row.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+                row.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
                   <span style="font-size:10px;color:var(--text-muted)">${(f.size/1024).toFixed(0)} KB</span>`;
                 el.querySelector('#img-list').appendChild(row);
                 row.addEventListener('click', () => {
@@ -421,7 +421,7 @@ export class ConvertView {
                 const row = document.createElement('div');
                 row.className = 'list-item';
                 row.dataset.name = f.name;
-                row.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+                row.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
                   <span style="font-size:10px;color:var(--text-muted)">${(f.size/1024).toFixed(0)} KB</span>`;
                 el.querySelector('#merge-list').appendChild(row);
                 row.addEventListener('click', () => {
