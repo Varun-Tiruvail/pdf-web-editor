@@ -1,0 +1,6 @@
+# Ignore all PDF files
+*.pdf
+
+# Ignore node modules and Mac files just in case
+node_modules/
+.DS_Store

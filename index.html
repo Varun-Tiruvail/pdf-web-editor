@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PDF Editor Pro — Open, edit, annotate, organize and convert PDF documents directly in your browser." />
+  <title>PDF Editor Pro</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- pdf-lib: client-side PDF creation, merge, split, reorder (no backend needed) -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <!-- Tesseract.js: Browser-native OCR (WASM) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       CUSTOM TITLE BAR
+  ═══════════════════════════════════════════════ -->
+  <div id="title-bar">
+    <div id="title-logo">
+      <span class="logo-badge">PDF</span>
+      <span class="logo-text">Editor Pro</span>
+    </div>
+    <div id="title-center">
+      <span id="doc-title">No Document</span>
+    </div>
+    <div id="title-actions">
+      <button class="title-btn" id="btn-new"      title="New PDF (Ctrl+N)">New</button>
+      <button class="title-btn" id="btn-open"     title="Open PDF (Ctrl+O)">Open</button>
+      <button class="title-btn primary" id="btn-save" title="Save / Download (Ctrl+S)">Save</button>
+      <div class="title-sep"></div>
+      <div id="wc-btn-min"   class="wc-btn wc-yellow" title="Minimize"></div>
+      <div id="wc-btn-max"   class="wc-btn wc-green"  title="Full Screen"></div>
+      <div id="wc-btn-close" class="wc-btn wc-red"    title="Close"></div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for PDF open -->
+  <input type="file" id="file-input" accept=".pdf" style="display:none" />
+
+  <!-- ═══════════════════════════════════════════════
+       BODY — Sidebar + Content Stack
+  ═══════════════════════════════════════════════ -->
+  <div id="app-body">
+
+    <!-- Sidebar -->
+    <nav id="sidebar" class="expanded">
+      <button id="sidebar-toggle" title="Toggle Sidebar (Ctrl+B)">
+        <span class="nav-icon">☰</span>
+      </button>
+
+      <div class="nav-items">
+        <a class="nav-item active" data-view="home"      href="#" id="nav-home">
+          <span class="nav-icon">⌂</span>
+          <span class="nav-label">Home</span>
+        </a>
+        <a class="nav-item" data-view="editor"     href="#" id="nav-editor">
+          <span class="nav-icon">✎</span>
+          <span class="nav-label">Editor</span>
+        </a>
+        <a class="nav-item" data-view="annotate"   href="#" id="nav-annotate">
+          <span class="nav-icon">◈</span>
+          <span class="nav-label">Annotate</span>
+        </a>
+        <a class="nav-item" data-view="organize"   href="#" id="nav-organize">
+          <span class="nav-icon">⊞</span>
+          <span class="nav-label">Organize</span>
+        </a>
+        <a class="nav-item" data-view="tools"      href="#" id="nav-tools">
+          <span class="nav-icon">⚒</span>
+          <span class="nav-label">Tools</span>
+        </a>
+        <a class="nav-item" data-view="merge"      href="#" id="nav-merge">
+          <span class="nav-icon">⊕</span>
+          <span class="nav-label">Merge</span>
+        </a>
+        <a class="nav-item" data-view="ocr"        href="#" id="nav-ocr">
+          <span class="nav-icon">🔍</span>
+          <span class="nav-label">OCR</span>
+        </a>
+        <a class="nav-item" data-view="convert"    href="#" id="nav-convert">
+          <span class="nav-icon">⇄</span>
+          <span class="nav-label">Convert</span>
+        </a>
+        <a class="nav-item" data-view="security"   href="#" id="nav-security">
+          <span class="nav-icon">⊛</span>
+          <span class="nav-label">Security</span>
+        </a>
+        <a class="nav-item" data-view="forms"      href="#" id="nav-forms">
+          <span class="nav-icon">▦</span>
+          <span class="nav-label">Forms</span>
+        </a>
+        <a class="nav-item" data-view="bookmarks"  href="#" id="nav-bookmarks">
+          <span class="nav-icon">◉</span>
+          <span class="nav-label">Bookmarks</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="nav-item" href="#" id="nav-search" data-view="search">
+          <span class="nav-icon">⌕</span>
+          <span class="nav-label">Search</span>
+        </a>
+        <a class="nav-item" href="#" id="nav-settings">
+          <span class="nav-icon">⚙</span>
+          <span class="nav-label">Settings</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Content Stack -->
+    <main id="content-stack">
+      <div id="view-home"      class="view active"></div>
+      <div id="view-editor"    class="view"></div>
+      <div id="view-annotate"  class="view"></div>
+      <div id="view-organize"  class="view"></div>
+      <div id="view-tools"     class="view"></div>
+      <div id="view-merge"     class="view"></div>
+      <div id="view-convert"   class="view"></div>
+      <div id="view-security"  class="view"></div>
+      <div id="view-forms"     class="view"></div>
+      <div id="view-bookmarks" class="view"></div>
+      <div id="view-search"    class="view"></div>
+      <div id="view-ocr"       class="view"></div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       STATUS BAR
+  ═══════════════════════════════════════════════ -->
+  <footer id="status-bar">
+    <span id="status-msg">Ready — Open a PDF to begin</span>
+    <div id="status-right">
+      <div id="progress-bar-wrap" class="hidden">
+        <div id="progress-bar-inner"></div>
+      </div>
+      <span id="status-page"></span>
+      <span id="status-zoom"></span>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════
+       MODAL / DIALOG OVERLAY
+  ═══════════════════════════════════════════════ -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <div id="modal-header">
+        <span id="modal-title"></span>
+        <button id="modal-close">✕</button>
+      </div>
+      <div id="modal-body"></div>
+      <div id="modal-footer">
+        <button id="modal-cancel" class="btn">Cancel</button>
+        <button id="modal-confirm" class="btn primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       TOAST NOTIFICATIONS
+  ═══════════════════════════════════════════════ -->
+  <div id="toast-container"></div>
+
+  <!-- ═══════════════════════════════════════════════
+       CONTEXT MENU
+  ═══════════════════════════════════════════════ -->
+  <ul id="context-menu" class="hidden"></ul>
+
+  <!-- ═══════════════════════════════════════════════
+       SCRIPTS (ES Modules)
+  ═══════════════════════════════════════════════ -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
